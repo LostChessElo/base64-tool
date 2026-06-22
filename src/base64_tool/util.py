@@ -8,7 +8,7 @@ def resolve_input_bytes(data: bytes | None, file: Path | None ) -> bytes:
     if file is not None:
         if not file.exists():
             raise typer.BadParameter(f"File not found: {file}")
-        return file.read_bytes
+        return file.read_bytes()
     if data is not None:
         return data.encode("utf-8")
     if not sys.stdin.isatty():
@@ -16,7 +16,7 @@ def resolve_input_bytes(data: bytes | None, file: Path | None ) -> bytes:
     raise typer.BadParameter("No input provided. Pass an argument, use --file, or use pipe stdin")
 
 
-def resolve_input_text(data: bytes | None, file: Path | None) -> str:
+def resolve_input_text(data: str | None, file: Path | None) -> str:
     if file is not None:
         if not file.exists():
             raise typer.BadParameter(f"File not found: {file}")

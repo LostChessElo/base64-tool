@@ -29,6 +29,7 @@ name = "b64tool"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "pytest" },
     { name = "rich" },
     { name = "typer" },
 ]
@@ -50,6 +51,7 @@ requires-dist = [
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.19.1,<2.0.0" },
     { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=4.5.1,<5.0.0" },
     { name = "pylint", marker = "extra == 'dev'", specifier = ">=4.0.4,<5.0.0" },
+    { name = "pytest", specifier = ">=9.1.1" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=9.0.2,<10.0.0" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=7.0.0,<8.0.0" },
     { name = "rich", specifier = ">=14.3.2,<15.0.0" },
