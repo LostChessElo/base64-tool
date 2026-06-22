@@ -1,15 +1,5 @@
-import sys
-from io import BytesIO, StringIO
-from pathlib import Path
-from unittest.mock import patch
-
-import pytest
-import typer
-
 from src.base64_tool.util import (
     is_printable_text,
-    resolve_input_bytes,
-    resolve_input_text,
     safe_bytes_preview,
     truncate,
 )
