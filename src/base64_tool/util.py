@@ -28,11 +28,25 @@ def resolve_input_text(data: bytes | None, file: Path | None) -> str:
     raise typer.BadParameter("No input provided. Pass an argument, use --file, or use pipe stdin")
 
 
-def truncate() -> str:
-    pass
+def truncate(text: str, length: int = 72) -> str:
+    if len(text) <= length:
+        return text
+    return text[: length] + "..."
 
-def safe_bytes_preview() -> str:
-    pass
 
-def is_printable_text() -> bool:
-    pass
+def safe_bytes_preview(data: bytes, length: int = 72) -> str:
+    try:
+        return truncate(data.decode("utf-8"), length)
+    except(UnicodeDecodeError, ValueError):
+        return truncate(data.hex(), length)
+
+
+def is_printable_text(data: bytes, threshold: float = 0.8) -> bool:
+    try:
+        text = data.decode("utf-8")
+    except (UnicodeDecodeError, ValueError):
+        return False
+    if not text:
+        return False
+    printable_count = sum(1 for c in text if c.isprintable() or c in "\n\r\t")
+    return (printable_count / len(text)) >= threshold
