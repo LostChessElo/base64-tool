@@ -14,7 +14,7 @@ type EncoderFn = Callable[[bytes], str]
 type DecoderFn = Callable[[str], bytes]
 
 def encode_base64(data: bytes) -> str:
-    return b64.b64decode(data).decode("ascii")
+    return b64.b64encode(data).decode("ascii")
 
 def encode_base64url(data: bytes) -> str:
     return b64.urlsafe_b64encode(data).decode("ascii")
@@ -41,7 +41,7 @@ def decode_base64url(data: str) -> bytes:
     return b64.urlsafe_b64decode(clean)
 
 def decode_base32(data: str) -> bytes:
-    clean = "".join(data.split())
+    clean = "".join(data.upper().split())
     return b64.b32decode(clean)
 
 def decode_url(data: str, *, form: bool = False) -> bytes:
