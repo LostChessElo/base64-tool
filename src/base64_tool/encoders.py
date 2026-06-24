@@ -43,3 +43,16 @@ def decode_url(data: str) -> bytes:
 def decode_hex(data: str) -> bytes:
     pass
 
+ENCODER_REGISTRY: dict[
+    EncodingFormat,
+    tuple[EncoderFn, DecoderFn],
+] = {
+    EncodingFormat.BASE64: (encode_base64, decode_base64),
+    EncodingFormat.BASE64URL: (encode_base64url, decode_base64url),
+    EncodingFormat.BASE32: (encode_base32, decode_base32),
+    EncodingFormat.HEX: (encode_hex, decode_hex),
+    EncodingFormat.URL: (
+        lambda data: encode_url(data),
+        lambda data: decode_url(data),
+    ),
+}
