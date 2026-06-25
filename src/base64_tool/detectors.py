@@ -36,3 +36,12 @@ def _score_url(data: str) -> float:
 
 def _score_hex(data: str) -> float:
     pass
+
+def score_all_formats(data: str) -> dict[EncodingFormat, float]:
+    pass
+
+def detect_encoding(data: str) -> list[DetectionResult]:
+    pass
+
+def detect_best(data: str) -> DetectionResult | None:
+    pass
