@@ -44,8 +44,8 @@ def _score_base64(data: str) -> float:
     if any(c in stripped for c in "/+"):
         score += W.B64_SPECIAL_CHARS
     
-    has_lower = any(c.islower() for c in stripped)
-    has_upper = any(c.isupper() for c in stripped)
+    has_lower = any(c.islower() for c in content)
+    has_upper = any(c.isupper() for c in content)
     if has_lower and has_upper:
         score += W.B64_MIXED_CASE
     elif not has_upper and not any(c in stripped for c in "+/="):
@@ -119,7 +119,7 @@ def _score_base32(data: str) -> float:
     if is_printable_text(decode):
         score += W.PRINTABLE_RESULT
 
-    return min(score, 1,0)
+    return min(score, 1.0)
 
 def _score_hex(data: str) -> float:
     stripped = data.strip()
