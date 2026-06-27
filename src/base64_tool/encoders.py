@@ -88,4 +88,3 @@ def try_decode(data: str, fmt: EncodingFormat) -> bytes:
         UnicodeEncodeError
     ):
         return None
-    

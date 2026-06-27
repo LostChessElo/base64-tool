@@ -16,45 +16,47 @@ from base64_tool.constants import (
 from base64_tool.encoders import try_decode
 from base64_tool.util import is_printable_text
 
+
 @dataclass(frozen=True, slots=True)
 class DetectionResult:
     format: EncodingFormat
     confidence: float
     decoded: bytes | None
 
+
 def _score_base64(data: str) -> float:
     stripped = "".join(data.split())
-    # base64 returns at minumum 4 characters after encoding 
     if len(stripped) < MIN_INPUT_LENGTH:
         return 0.0
     if not all(c in BASE64_CHARSET for c in stripped):
         return 0.0
     # therefore all base64 encoded strings are a multiple of 4.
     if len(stripped) % 4 != 0:
-        return 0.0 
-    
-    # start at 0.4 and remove padding 
+        return 0.0
+
     score = W.B64_BASE
     content = stripped.rstrip("=")
 
     padding = len(stripped) - len(content)
-    # valid base64 string can only ever have 2 or less pads 
+    # valid base64 string can only ever have 2 or less pads
     if padding <= 2:
         score += W.B64_VALID_PADDING
     if any(c in stripped for c in "/+"):
         score += W.B64_SPECIAL_CHARS
-    
+
     has_lower = any(c.islower() for c in content)
     has_upper = any(c.isupper() for c in content)
     if has_lower and has_upper:
         score += W.B64_MIXED_CASE
     elif not has_upper and not any(c in stripped for c in "+/="):
-        score -= W.B64_NO_SIGNAL_PENALTY # no mixxed case and no padding or special chars is highly unlikely in base64 strings 
+        score -= (
+            W.B64_NO_SIGNAL_PENALTY
+        )  # no mixxed case and no padding or special chars is highly unlikely in base64 strings
 
-    # at least 2 fully encoded base64 chunks +0.5 bonus 
+    # at least 2 fully encoded base64 chunks +0.5 bonus
     if len(stripped) >= 8:
         score += W.LONGER_INPUT
-    
+
     decoded = try_decode(stripped, EncodingFormat.BASE64)
     if decoded is None:
         return 0.0
@@ -92,16 +94,17 @@ def _score_base64url(data: str) -> float:
 
     return min(score, 1.0)
 
+
 def _score_base32(data: str) -> float:
     stripped = "".join(data.split())
     if len(stripped) < MIN_INPUT_LENGTH:
         return 0.0
     if not all(c in BASE32_CHARSET for c in stripped):
-        return 0.0 
-    # base32 always returns an outpu of 8 chars 
+        return 0.0
+    # base32 always returns an outpu of 8 chars
     if len(stripped) % 8 != 0:
         return 0.0
-    
+
     score = W.B32_BASE
 
     valid_pad_counts = frozenset({0, 1, 3, 4, 6})
@@ -111,7 +114,7 @@ def _score_base32(data: str) -> float:
 
     if data == data.upper():
         score += W.B32_UPPERCASE
-    
+
     decode = try_decode(stripped, EncodingFormat.BASE32)
     if decode is None:
         return 0.0
@@ -120,6 +123,7 @@ def _score_base32(data: str) -> float:
         score += W.PRINTABLE_RESULT
 
     return min(score, 1.0)
+
 
 def _score_hex(data: str) -> float:
     stripped = data.strip()
@@ -149,7 +153,7 @@ def _score_hex(data: str) -> float:
     else:
         score -= W.HEX_NO_ALPHA_PENALTY
 
-    is_consistent_case = (hex_only == hex_only.lower() or hex_only == hex_only.upper())
+    is_consistent_case = hex_only == hex_only.lower() or hex_only == hex_only.upper()
     if is_consistent_case:
         score += W.HEX_CONSISTENT_CASE
 
@@ -165,7 +169,9 @@ def _score_hex(data: str) -> float:
 
     return min(score, 1.0)
 
+
 _URL_PATTERN = re.compile(r"%[0-9a-fA-F]{2}")
+
 
 def _score_url(data: str) -> float:
     if len(data) < MIN_INPUT_LENGTH:
@@ -181,23 +187,21 @@ def _score_url(data: str) -> float:
 
     decoded = try_decode(data, EncodingFormat.URL)
     if decoded is not None:
-        decoded_text = decoded.decode("utf-8", errors = "replace")
+        decoded_text = decoded.decode("utf-8", errors="replace")
         if decoded_text != data:
             score += W.URL_DECODE_CHANGED
 
     return min(score, 1.0)
 
 
+_SCORERS: dict[EncodingFormat, Callable[[str], float]] = {
+    EncodingFormat.BASE64: _score_base64,
+    EncodingFormat.BASE64URL: _score_base64url,
+    EncodingFormat.BASE32: _score_base32,
+    EncodingFormat.HEX: _score_hex,
+    EncodingFormat.URL: _score_url,
+}
 
-_SCORERS: dict[EncodingFormat,
-               Callable[[str],
-                        float]] = {
-                            EncodingFormat.BASE64: _score_base64,
-                            EncodingFormat.BASE64URL: _score_base64url,
-                            EncodingFormat.BASE32: _score_base32,
-                            EncodingFormat.HEX: _score_hex,
-                            EncodingFormat.URL: _score_url,
-                        }
 
 def score_all_formats(data: str) -> dict[EncodingFormat, float]:
     return {fmt: scorer(data) for fmt, scorer in _SCORERS.items()}
@@ -211,14 +215,13 @@ def detect_encoding(data: str) -> list[DetectionResult]:
             decoded = try_decode(data, fmt)
             results.append(
                 DetectionResult(
-                    format = fmt,
-                    confidence = round(confidence,
-                                       2),
-                    decoded = decoded,
+                    format=fmt,
+                    confidence=round(confidence, 2),
+                    decoded=decoded,
                 )
             )
 
-    results.sort(key = lambda r: r.confidence, reverse = True)
+    results.sort(key=lambda r: r.confidence, reverse=True)
     return results
 
 
