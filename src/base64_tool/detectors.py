@@ -187,11 +187,41 @@ def _score_url(data: str) -> float:
 
     return min(score, 1.0)
 
+
+
+_SCORERS: dict[EncodingFormat,
+               Callable[[str],
+                        float]] = {
+                            EncodingFormat.BASE64: _score_base64,
+                            EncodingFormat.BASE64URL: _score_base64url,
+                            EncodingFormat.BASE32: _score_base32,
+                            EncodingFormat.HEX: _score_hex,
+                            EncodingFormat.URL: _score_url,
+                        }
+
 def score_all_formats(data: str) -> dict[EncodingFormat, float]:
-    pass
+    return {fmt: scorer(data) for fmt, scorer in _SCORERS.items()}
+
 
 def detect_encoding(data: str) -> list[DetectionResult]:
-    pass
+    results: list[DetectionResult] = []
+
+    for fmt, confidence in score_all_formats(data).items():
+        if confidence >= CONFIDENCE_THRESHOLD:
+            decoded = try_decode(data, fmt)
+            results.append(
+                DetectionResult(
+                    format = fmt,
+                    confidence = round(confidence,
+                                       2),
+                    decoded = decoded,
+                )
+            )
+
+    results.sort(key = lambda r: r.confidence, reverse = True)
+    return results
+
 
 def detect_best(data: str) -> DetectionResult | None:
-    pass
+    results = detect_encoding(data)
+    return results[0] if results else None
