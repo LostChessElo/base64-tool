@@ -4,7 +4,7 @@ from pathlib import Path
 import typer
 
 
-def resolve_input_bytes(data: bytes | None, file: Path | None ) -> bytes:
+def resolve_input_bytes(data: str | None, file: Path | None ) -> bytes:
     if file is not None:
         if not file.exists():
             raise typer.BadParameter(f"File not found: {file}")

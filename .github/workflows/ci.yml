@@ -27,7 +27,7 @@ jobs:
       - run: uv sync --extra dev
       - run: uv run ruff check .
 
-  type-checking:
+  typecheck:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

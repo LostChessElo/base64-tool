@@ -78,7 +78,7 @@ def decode(data: str, fmt: EncodingFormat) -> bytes:
     _, decoder_fn = ENCODER_REGISTRY[fmt]
     return decoder_fn(data)
 
-def try_decode(data: str, fmt: EncodingFormat) -> bytes:
+def try_decode(data: str, fmt: EncodingFormat) -> bytes | None:
     try:
         return decode(data, fmt)
     except(
