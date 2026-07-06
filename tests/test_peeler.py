@@ -72,7 +72,7 @@ class TestPeelEdgeCases:
         Checks that setting max_depth=0 prevents any layers from being peeled
         """
         encoded = encode(b"data", EncodingFormat.BASE64)
-        result = peel(encoded, max_depth = 0)
+        result = peel(encoded, max_depth=0)
         assert len(result.layers) == 0
 
     def test_empty_string(self) -> None:

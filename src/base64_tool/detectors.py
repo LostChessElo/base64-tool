@@ -49,9 +49,7 @@ def _score_base64(data: str) -> float:
     if has_lower and has_upper:
         score += W.B64_MIXED_CASE
     elif not has_upper and not any(c in stripped for c in "+/="):
-        score -= (
-            W.B64_NO_SIGNAL_PENALTY
-        )  # no mixxed case and no padding or special chars is highly unlikely in base64 strings
+        score -= W.B64_NO_SIGNAL_PENALTY  # no mixxed case and no padding or special chars is highly unlikely in base64 strings
 
     # at least 2 fully encoded base64 chunks +0.5 bonus
     if len(stripped) >= 8:

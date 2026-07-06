@@ -115,7 +115,7 @@ class TestDetectMultiple:
         results = detect_encoding("SGVsbG8gV29ybGQ=")
         if len(results) > 1:
             confidences = [r.confidence for r in results]
-            assert confidences == sorted(confidences, reverse = True)
+            assert confidences == sorted(confidences, reverse=True)
 
     def test_no_match_returns_empty(self) -> None:
         """

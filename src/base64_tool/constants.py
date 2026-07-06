@@ -1,12 +1,14 @@
 from enum import StrEnum
 from typing import Final
 
+
 class EncodingFormat(StrEnum):
     BASE64 = "base64"
     BASE64URL = "base64url"
     BASE32 = "base32"
     HEX = "hex"
     URL = "url"
+
 
 class ExitCode:
     SUCCESS: Final[int] = 0
@@ -23,6 +25,7 @@ PREVIEW_LENGTH: Final[int] = 72
 CONFIDENCE_THRESHOLD: Final[float] = 0.6
 
 PRINTABLE_RATIO_THRESHOLD: Final[float] = 0.8
+
 
 # weights for criteria to score what encoding was used on the input provided
 class ScoreWeight:
@@ -56,13 +59,13 @@ class ScoreWeight:
     URL_DECODE_CHANGED: Final[float] = 0.15
 
 
-BASE64_CHARSET: Final[
-    frozenset[str]
-] = frozenset("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=")
+BASE64_CHARSET: Final[frozenset[str]] = frozenset(
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="
+)
 
-BASE64URL_CHARSET: Final[
-    frozenset[str]
-] = frozenset("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_=")
+BASE64URL_CHARSET: Final[frozenset[str]] = frozenset(
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_="
+)
 
 BASE32_CHARSET: Final[frozenset[str]] = frozenset("ABCDEFGHIJKLMNOPQRSTUVWXYZ234567=")
 

@@ -211,7 +211,7 @@ class TestUrl:
         """
         Checks that form encoding turns spaces into + rather than %20
         """
-        result = encode_url(b"hello world", form = True)
+        result = encode_url(b"hello world", form=True)
         assert "+" in result
         assert "%20" not in result
 
@@ -219,7 +219,7 @@ class TestUrl:
         """
         Checks that form decoding turns + back into a space
         """
-        assert decode_url("hello+world", form = True) == b"hello world"
+        assert decode_url("hello+world", form=True) == b"hello world"
 
 
 class TestRegistryDispatch:
