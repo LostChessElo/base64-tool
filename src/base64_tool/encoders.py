@@ -13,17 +13,22 @@ from base64_tool.constants import EncodingFormat
 type EncoderFn = Callable[[bytes], str]
 type DecoderFn = Callable[[str], bytes]
 
+
 def encode_base64(data: bytes) -> str:
     return b64.b64encode(data).decode("ascii")
+
 
 def encode_base64url(data: bytes) -> str:
     return b64.urlsafe_b64encode(data).decode("ascii")
 
+
 def encode_base32(data: bytes) -> str:
     return b64.b32encode(data).decode("ascii")
 
+
 def encode_hex(data: bytes) -> str:
     return data.hex()
+
 
 def encode_url(data: bytes, *, form: bool = False) -> str:
     text = data.decode("utf-8")
@@ -36,13 +41,16 @@ def decode_base64(data: str) -> bytes:
     clean = "".join(data.split())
     return b64.b64decode(clean, validate=True)
 
+
 def decode_base64url(data: str) -> bytes:
     clean = "".join(data.split())
     return b64.urlsafe_b64decode(clean)
 
+
 def decode_base32(data: str) -> bytes:
     clean = "".join(data.upper().split())
     return b64.b32decode(clean)
+
 
 def decode_url(data: str, *, form: bool = False) -> bytes:
     if form:
@@ -55,6 +63,7 @@ def decode_hex(data: str) -> bytes:
     for sep in (" ", ":", "-", "."):
         cleaned = cleaned.replace(sep, "")
     return bytes.fromhex(cleaned)
+
 
 ENCODER_REGISTRY: dict[
     EncodingFormat,
@@ -70,21 +79,19 @@ ENCODER_REGISTRY: dict[
     ),
 }
 
+
 def encode(data: bytes, fmt: EncodingFormat) -> str:
     encoder_fn, _ = ENCODER_REGISTRY[fmt]
     return encoder_fn(data)
+
 
 def decode(data: str, fmt: EncodingFormat) -> bytes:
     _, decoder_fn = ENCODER_REGISTRY[fmt]
     return decoder_fn(data)
 
+
 def try_decode(data: str, fmt: EncodingFormat) -> bytes | None:
     try:
         return decode(data, fmt)
-    except(
-        ValueError,
-        binascii.Error,
-        UnicodeDecodeError,
-        UnicodeEncodeError
-    ):
+    except ValueError, binascii.Error, UnicodeDecodeError, UnicodeEncodeError:
         return None
