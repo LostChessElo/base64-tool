@@ -8,7 +8,6 @@ from base64_tool.constants import (
 )
 from base64_tool.detectors import detect_best, score_all_formats
 from base64_tool.util import safe_bytes_preview, truncate
-from base64_tool.encoders import *
 
 
 @dataclass(frozen=True, slots=True)
@@ -20,7 +19,6 @@ class PeelLayer:
     decoded_preview: str
     all_scores: tuple[tuple[EncodingFormat, float], ...] = ()
 
-
 @dataclass(frozen=True, slots=True)
 class PeelResult:
     layers: tuple[PeelLayer, ...]
@@ -28,19 +26,12 @@ class PeelResult:
     success: bool
 
 
-def peel(
-    data: str,
-    *,
-    max_depth: int = PEEL_MAX_DEPTH,
-    threshold: float = CONFIDENCE_THRESHOLD,
-    verbose: bool = False,
-) -> PeelResult:
+def peel(data: str, *, max_depth: int = PEEL_MAX_DEPTH, threshold: float = CONFIDENCE_THRESHOLD, verbose: bool = False) -> PeelResult:
     layers: list[PeelLayer] = []
     current_data = data
     current_bytes = data.encode("utf-8")
 
     for depth in range(max_depth):
-        print(current_data)
         detection = detect_best(current_data)
 
         if detection is None:
@@ -50,7 +41,8 @@ def peel(
         if detection.decoded is None:
             break
 
-        scores = tuple(score_all_formats(current_data).items()) if verbose else ()
+
+        scores = (tuple(score_all_formats(current_data).items()) if verbose else ())
 
         decoded_bytes = detection.decoded
         print(decoded_bytes)
@@ -67,14 +59,12 @@ def peel(
 
         try:
             current_data = decoded_bytes.decode("utf-8")
-        except UnicodeDecodeError, ValueError:
+        except (UnicodeDecodeError, ValueError):
             break
 
+
     return PeelResult(
-        layers=tuple(layers), final_output=current_bytes, success=len(layers) > 0
+        layers=tuple(layers),
+        final_output=current_bytes,
+        success=len(layers) > 0
     )
-
-
-encoded = encode(b"Hello World", EncodingFormat.BASE64)
-result = peel(encoded)
-print(result.layers)
