@@ -1,4 +1,3 @@
-from codecs import encode
 from dataclasses import dataclass
 
 from base64_tool.constants import (
@@ -19,6 +18,7 @@ class PeelLayer:
     decoded_preview: str
     all_scores: tuple[tuple[EncodingFormat, float], ...] = ()
 
+
 @dataclass(frozen=True, slots=True)
 class PeelResult:
     layers: tuple[PeelLayer, ...]
@@ -26,7 +26,13 @@ class PeelResult:
     success: bool
 
 
-def peel(data: str, *, max_depth: int = PEEL_MAX_DEPTH, threshold: float = CONFIDENCE_THRESHOLD, verbose: bool = False) -> PeelResult:
+def peel(
+    data: str,
+    *,
+    max_depth: int = PEEL_MAX_DEPTH,
+    threshold: float = CONFIDENCE_THRESHOLD,
+    verbose: bool = False,
+) -> PeelResult:
     layers: list[PeelLayer] = []
     current_data = data
     current_bytes = data.encode("utf-8")
@@ -41,8 +47,7 @@ def peel(data: str, *, max_depth: int = PEEL_MAX_DEPTH, threshold: float = CONFI
         if detection.decoded is None:
             break
 
-
-        scores = (tuple(score_all_formats(current_data).items()) if verbose else ())
+        scores = tuple(score_all_formats(current_data).items()) if verbose else ()
 
         decoded_bytes = detection.decoded
         print(decoded_bytes)
@@ -59,12 +64,9 @@ def peel(data: str, *, max_depth: int = PEEL_MAX_DEPTH, threshold: float = CONFI
 
         try:
             current_data = decoded_bytes.decode("utf-8")
-        except (UnicodeDecodeError, ValueError):
+        except UnicodeDecodeError, ValueError:
             break
 
-
     return PeelResult(
-        layers=tuple(layers),
-        final_output=current_bytes,
-        success=len(layers) > 0
+        layers=tuple(layers), final_output=current_bytes, success=len(layers) > 0
     )
