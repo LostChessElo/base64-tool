@@ -17,13 +17,23 @@ from base64_tool.util import safe_bytes_preview
 console = Console(stderr=True)
 
 def is_piped() -> bool:
-    pass 
+    return not sys.stdout.isatty()
 
-def write_raw(test: str) -> None:
-    pass
+def write_raw(text: str) -> None:
+    sys.stdout.write(text)
+    sys.stdout.flush()
 
 def print_encoded(result: str, fmt: EncodingFormat) -> None:
-    pass
+    if is_piped():
+        write_raw(result)
+        return
+    panel = Panel(
+        Text(result,
+             style = "green"),
+        title = f"[bold cyan]{fmt.value}[/bold cyan] encoded",
+        border_style = "cyan",
+    )
+    console.print(panel)
 
 def print_decoded(result: bytes) -> None:
     pass
