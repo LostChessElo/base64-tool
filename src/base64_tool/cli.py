@@ -32,14 +32,13 @@ from base64_tool.util import (
 
 
 app = typer.Typer(
-    name = "b64tool",
-    help = ("Multi-format encoding/decoding CLI "
-            "with recursive layer detection"),
-    no_args_is_help = True,
-    pretty_exceptions_show_locals = False,
+    name="b64tool",
+    help=("Multi-format encoding/decoding CLI with recursive layer detection"),
+    no_args_is_help=True,
+    pretty_exceptions_show_locals=False,
 )
 
-_console = Console(stderr = True)
+_console = Console(stderr=True)
 
 
 def _version_callback(value: bool) -> None:
@@ -55,27 +54,27 @@ def main(
         typer.Option(
             "--version",
             "-v",
-            help = "Show version and exit.",
-            callback = _version_callback,
-            is_eager = True,
+            help="Show version and exit.",
+            callback=_version_callback,
+            is_eager=True,
         ),
     ] = False,
 ) -> None:
     pass
 
 
-@app.command(name = "encode")
+@app.command(name="encode")
 def encode_cmd(
     data: Annotated[
         str | None,
-        typer.Argument(help = "Data to encode."),
+        typer.Argument(help="Data to encode."),
     ] = None,
     fmt: Annotated[
         EncodingFormat,
         typer.Option(
             "--format",
             "-f",
-            help = "Target encoding format.",
+            help="Target encoding format.",
         ),
     ] = EncodingFormat.BASE64,
     file: Annotated[
@@ -83,21 +82,21 @@ def encode_cmd(
         typer.Option(
             "--file",
             "-i",
-            help = "Read input from file.",
+            help="Read input from file.",
         ),
     ] = None,
     form: Annotated[
         bool,
         typer.Option(
             "--form",
-            help = "Use form-encoding for URL (space becomes +).",
+            help="Use form-encoding for URL (space becomes +).",
         ),
     ] = False,
 ) -> None:
     try:
         raw = resolve_input_bytes(data, file)
         if fmt == EncodingFormat.URL and form:
-            result = encode_url(raw, form = True)
+            result = encode_url(raw, form=True)
         else:
             result = encode(raw, fmt)
         print_encoded(result, fmt)
@@ -105,21 +104,21 @@ def encode_cmd(
         raise
     except Exception as exc:
         _console.print(f"[red]Error:[/red] {exc}")
-        raise typer.Exit(code = ExitCode.ERROR) from None
+        raise typer.Exit(code=ExitCode.ERROR) from None
 
 
-@app.command(name = "decode")
+@app.command(name="decode")
 def decode_cmd(
     data: Annotated[
         str | None,
-        typer.Argument(help = "Data to decode."),
+        typer.Argument(help="Data to decode."),
     ] = None,
     fmt: Annotated[
         EncodingFormat,
         typer.Option(
             "--format",
             "-f",
-            help = "Source encoding format.",
+            help="Source encoding format.",
         ),
     ] = EncodingFormat.BASE64,
     file: Annotated[
@@ -127,21 +126,21 @@ def decode_cmd(
         typer.Option(
             "--file",
             "-i",
-            help = "Read input from file.",
+            help="Read input from file.",
         ),
     ] = None,
     form: Annotated[
         bool,
         typer.Option(
             "--form",
-            help = "Use form-decoding for URL (+ becomes space).",
+            help="Use form-decoding for URL (+ becomes space).",
         ),
     ] = False,
 ) -> None:
     try:
         text = resolve_input_text(data, file)
         if fmt == EncodingFormat.URL and form:
-            result = decode_url(text, form = True)
+            result = decode_url(text, form=True)
         else:
             result = decode(text, fmt)
         print_decoded(result)
@@ -149,21 +148,21 @@ def decode_cmd(
         raise
     except Exception as exc:
         _console.print(f"[red]Error:[/red] {exc}")
-        raise typer.Exit(code = ExitCode.ERROR) from None
+        raise typer.Exit(code=ExitCode.ERROR) from None
 
 
-@app.command(name = "detect")
+@app.command(name="detect")
 def detect_cmd(
     data: Annotated[
         str | None,
-        typer.Argument(help = "Data to analyze."),
+        typer.Argument(help="Data to analyze."),
     ] = None,
     file: Annotated[
         Path | None,
         typer.Option(
             "--file",
             "-i",
-            help = "Read input from file.",
+            help="Read input from file.",
         ),
     ] = None,
     verbose: Annotated[
@@ -171,7 +170,7 @@ def detect_cmd(
         typer.Option(
             "--verbose",
             "-V",
-            help = "Show per-format score breakdown.",
+            help="Show per-format score breakdown.",
         ),
     ] = False,
 ) -> None:
@@ -179,26 +178,26 @@ def detect_cmd(
         text = resolve_input_text(data, file)
         results = detect_encoding(text)
         scores = score_all_formats(text) if verbose else None
-        print_detection(results, verbose_scores = scores)
+        print_detection(results, verbose_scores=scores)
     except typer.BadParameter:
         raise
     except Exception as exc:
         _console.print(f"[red]Error:[/red] {exc}")
-        raise typer.Exit(code = ExitCode.ERROR) from None
+        raise typer.Exit(code=ExitCode.ERROR) from None
 
 
-@app.command(name = "peel")
+@app.command(name="peel")
 def peel_cmd(
     data: Annotated[
         str | None,
-        typer.Argument(help = "Data to recursively decode."),
+        typer.Argument(help="Data to recursively decode."),
     ] = None,
     file: Annotated[
         Path | None,
         typer.Option(
             "--file",
             "-i",
-            help = "Read input from file.",
+            help="Read input from file.",
         ),
     ] = None,
     max_depth: Annotated[
@@ -206,7 +205,7 @@ def peel_cmd(
         typer.Option(
             "--max-depth",
             "-d",
-            help = "Maximum decoding layers.",
+            help="Maximum decoding layers.",
         ),
     ] = PEEL_MAX_DEPTH,
     verbose: Annotated[
@@ -214,34 +213,33 @@ def peel_cmd(
         typer.Option(
             "--verbose",
             "-V",
-            help = "Show per-format score breakdown at each layer.",
+            help="Show per-format score breakdown at each layer.",
         ),
     ] = False,
 ) -> None:
     try:
         text = resolve_input_text(data, file)
-        result = peel(text, max_depth = max_depth, verbose = verbose)
-        print_peel_result(result, verbose = verbose)
+        result = peel(text, max_depth=max_depth, verbose=verbose)
+        print_peel_result(result, verbose=verbose)
     except typer.BadParameter:
         raise
     except Exception as exc:
         _console.print(f"[red]Error:[/red] {exc}")
-        raise typer.Exit(code = ExitCode.ERROR) from None
+        raise typer.Exit(code=ExitCode.ERROR) from None
 
 
-@app.command(name = "chain")
+@app.command(name="chain")
 def chain_cmd(
     data: Annotated[
         str | None,
-        typer.Argument(help = "Data to encode through chain."),
+        typer.Argument(help="Data to encode through chain."),
     ] = None,
     steps: Annotated[
         str,
         typer.Option(
             "--steps",
             "-s",
-            help = ("Comma-separated encoding formats "
-                    "(e.g. base64,hex,url)."),
+            help=("Comma-separated encoding formats (e.g. base64,hex,url)."),
         ),
     ] = "base64",
     file: Annotated[
@@ -249,7 +247,7 @@ def chain_cmd(
         typer.Option(
             "--file",
             "-i",
-            help = "Read input from file.",
+            help="Read input from file.",
         ),
     ] = None,
 ) -> None:
@@ -270,7 +268,7 @@ def chain_cmd(
         raise
     except Exception as exc:
         _console.print(f"[red]Error:[/red] {exc}")
-        raise typer.Exit(code = ExitCode.ERROR) from None
+        raise typer.Exit(code=ExitCode.ERROR) from None
 
 
 def _parse_chain_steps(raw: str) -> list[EncodingFormat]:
@@ -283,8 +281,7 @@ def _parse_chain_steps(raw: str) -> list[EncodingFormat]:
             formats.append(EncodingFormat(cleaned))
         except ValueError:
             raise typer.BadParameter(
-                f"Unknown format '{cleaned}'. "
-                f"Valid formats: {valid_names}"
+                f"Unknown format '{cleaned}'. Valid formats: {valid_names}"
             ) from None
 
     if not formats:
