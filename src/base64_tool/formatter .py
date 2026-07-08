@@ -193,7 +193,9 @@ def print_chain_result(steps: list[tuple[EncodingFormat, str]], final: str) -> N
     )
     console.print(panel)
 
-
-
 def _confidence_color(confidence: float) -> str:
-    pass
+    if confidence >= 0.9:
+        return "green"
+    if confidence >= 0.7:
+        return "yellow"
+    return "red"
