@@ -10,7 +10,7 @@ from base64_tool.constants import (
     ExitCode,
     PEEL_MAX_DEPTH,
 )
-from base64_tool.detector import detect_encoding, score_all_formats
+from base64_tool.detectors import detect_encoding, score_all_formats
 from base64_tool.encoders import (
     decode,
     encode,
@@ -25,7 +25,7 @@ from base64_tool.formatter import (
     print_peel_result,
 )
 from base64_tool.peeler import peel
-from base64_tool.utils import (
+from base64_tool.util import (
     resolve_input_bytes,
     resolve_input_text,
 )
