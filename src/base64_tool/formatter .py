@@ -48,8 +48,40 @@ def print_decoded(result: bytes) -> None:
     )
     console.print(panel)
 
-def print_score_breakdown(score: dict[EncodingFormat, float]) -> None:
-    pass
+def print_score_breakdown(scores: dict[EncodingFormat, float]) -> None:
+    table = Table(
+        title = "Score Breakdown",
+        show_header = True,
+        header_style = "bold magenta",
+    )
+    table.add_column("Format", style = "cyan", min_width = 10)
+    table.add_column(
+        "Score",
+        justify = "right",
+        min_width = 8,
+    )
+    table.add_column("Status", min_width = 10)
+
+    sorted_scores = sorted(
+        scores.items(),
+        key = lambda x: x[1],
+        reverse = True,
+    )
+    for fmt, score in sorted_scores:
+        color = _confidence_color(score)
+        if score >= CONFIDENCE_THRESHOLD:
+            status = "[green]detected[/green]"
+        elif score > 0:
+            status = "[yellow]below threshold[/yellow]"
+        else:
+            status = "[dim]no match[/dim]"
+        table.add_row(
+            fmt.value,
+            f"[{color}]{score:.0%}[/{color}]",
+            status,
+        )
+
+    console.print(table)
 
 def print_detection(result: list[DetectionResult], *, verbose_scores: dict[EncodingFormat, float] | None = None) -> None:
     pass
