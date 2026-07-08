@@ -83,8 +83,45 @@ def print_score_breakdown(scores: dict[EncodingFormat, float]) -> None:
 
     console.print(table)
 
-def print_detection(result: list[DetectionResult], *, verbose_scores: dict[EncodingFormat, float] | None = None) -> None:
-    pass
+def print_detection(results: list[DetectionResult], *, verbose_scores: dict[EncodingFormat, float] | None = None) -> None:
+    if verbose_scores is not None:
+        print_score_breakdown(verbose_scores)
+        console.print()
+
+    if not results:
+        console.print("[yellow]No encoding format detected.[/yellow]")
+        return
+
+    table = Table(
+        title = "Detection Results",
+        show_header = True,
+        header_style = "bold magenta",
+    )
+    table.add_column("Format", style = "cyan", min_width = 10)
+    table.add_column(
+        "Confidence",
+        justify = "right",
+        style = "green",
+        min_width = 12,
+    )
+    table.add_column("Decoded Preview", style = "dim")
+
+    for result in results:
+        confidence_str = f"{result.confidence:.0%}"
+        preview = ""
+        if result.decoded is not None:
+            preview = safe_bytes_preview(
+                result.decoded,
+                PREVIEW_LENGTH,
+            )
+        table.add_row(
+            result.format.value,
+            confidence_str,
+            preview,
+        )
+
+    console.print(table)
+
 
 def print_peel_result(result: PeelResult, *, verbose: bool = False) -> None:
     pass
