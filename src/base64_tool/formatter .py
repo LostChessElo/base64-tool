@@ -124,10 +124,76 @@ def print_detection(results: list[DetectionResult], *, verbose_scores: dict[Enco
 
 
 def print_peel_result(result: PeelResult, *, verbose: bool = False) -> None:
-    pass
+    if not result.success:
+        console.print("[yellow]No encoding layers detected.[/yellow]")
+        return
+
+    layer_count = len(result.layers)
+    suffix = "s" if layer_count > 1 else ""
+    console.print()
+    console.print(
+        f"[bold cyan]Peeled {layer_count} encoding "
+        f"layer{suffix}[/bold cyan]"
+    )
+    console.print()
+
+    for layer in result.layers:
+        color = _confidence_color(layer.confidence)
+        console.print(
+            f"  [bold]Layer {layer.depth}[/bold]  "
+            f"[cyan]{layer.format.value}[/cyan]  "
+            f"[{color}]{layer.confidence:.0%}[/{color}]"
+        )
+        console.print(f"    [dim]{layer.decoded_preview}[/dim]")
+
+        if verbose and layer.all_scores:
+            console.print()
+            print_score_breakdown(dict(layer.all_scores))
+            console.print()
+
+    console.print()
+
+    preview = safe_bytes_preview(result.final_output, length = 4096)
+    panel = Panel(
+        Text(preview,
+             style = "bold green"),
+        title = "[bold]Final Output[/bold]",
+        border_style = "green",
+        subtitle = (f"[dim]{layer_count} layer{suffix} peeled[/dim]"),
+    )
+    console.print(panel)
+
 
 def print_chain_result(steps: list[tuple[EncodingFormat, str]], final: str) -> None:
-    pass
+    if is_piped():
+        write_raw(final)
+        return
+
+    console.print()
+    console.print("[bold cyan]Encoding Chain[/bold cyan]")
+    console.print()
+
+    for i, (fmt, intermediate) in enumerate(steps):
+        marker = "start" if i == 0 else "step"
+        arrow = f"  [{marker}] " if i == 0 else "    -> "
+        truncated = intermediate[: PREVIEW_LENGTH]
+        ellipsis = "..." if len(intermediate) > PREVIEW_LENGTH else ""
+        console.print(
+            f"{arrow}[cyan]{fmt.value}[/cyan]  "
+            f"[dim]{truncated}{ellipsis}[/dim]"
+        )
+
+    console.print()
+    panel = Panel(
+        Text(final,
+             style = "green"),
+        title = "[bold]Chain Result[/bold]",
+        border_style = "cyan",
+        subtitle = f"[dim]{len(steps)} steps[/dim]",
+    )
+    console.print(panel)
+
+
 
 def _confidence_color(confidence: float) -> str:
     pass
